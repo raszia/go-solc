@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/tracing"
-	"github.com/lmittmann/go-solc/internal/console"
+	"github.com/raszia/go-solc/internal/console"
 )
 
 // NewConsole returns a [vm.tracing.Hooks] that logs calls of console.sol to the

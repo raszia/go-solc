@@ -1,4 +1,4 @@
-module github.com/lmittmann/go-solc
+module github.com/raszia/go-solc
 
 go 1.23.0
 

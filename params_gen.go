@@ -12,7 +12,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/lmittmann/go-solc/internal/version"
+	"github.com/raszia/go-solc/internal/version"
 )
 
 var (

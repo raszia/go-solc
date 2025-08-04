@@ -8,12 +8,6 @@ import (
 )
 
 // Contract represents a compiled contract.
-type Contract struct {
-	Runtime     []byte // The runtime bytecode of the contract.
-	Constructor []byte // The constructor bytecode of the contract.
-	Code        []byte // Deprecated: The bytecode of the contract after deployment.
-	DeployCode  []byte // Deprecated: The bytecode to deploy the contract.
-}
 
 // lang represents the language of the source code.
 type lang string
@@ -69,7 +63,7 @@ type Optimizer struct {
 type output struct {
 	Errors    []error_                       `json:"errors"`
 	Sources   map[string]srcOut              `json:"sources"`
-	Contracts map[string]map[string]contract `json:"contracts"`
+	Contracts map[string]map[string]Contract `json:"contracts"`
 }
 
 func (o *output) Err() error {
@@ -107,7 +101,7 @@ type srcOut struct {
 	LegacyAST json.RawMessage `json:"legacyAST"`
 }
 
-type contract struct {
+type Contract struct {
 	ABI      []json.RawMessage `json:"abi"`
 	Metadata string            `json:"metadata"`
 	UserDoc  json.RawMessage   `json:"userdoc"`

@@ -2,7 +2,7 @@
 package solc
 
 import (
-	"github.com/lmittmann/go-solc/internal/version"
+	"github.com/raszia/go-solc/internal/version"
 )
 
 var (

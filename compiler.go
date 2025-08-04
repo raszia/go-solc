@@ -13,8 +13,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/lmittmann/go-solc/internal/console"
-	"github.com/lmittmann/go-solc/internal/mod"
+	"github.com/raszia/go-solc/internal/console"
+	"github.com/raszia/go-solc/internal/mod"
 	"golang.org/x/sync/singleflight"
 )
 
@@ -63,8 +63,8 @@ func (c *Compiler) init() {
 
 // Compile all contracts in the given directory and return the contract code of
 // the contract with the given name.
-func (c *Compiler) Compile(dir, contract string, opts ...Option) (*Contract, error) {
-	out, err := c.compile(dir, contract, opts)
+func (c *Compiler) Compile(dir, contract string, opts ...Option) (map[string]map[string]Contract, error) {
+	out, err := c.compile(dir, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -75,28 +75,12 @@ func (c *Compiler) Compile(dir, contract string, opts ...Option) (*Contract, err
 	}
 
 	// find contract code
-	var con *Contract
-	for _, conMap := range out.Contracts {
-		for conName, c := range conMap {
-			if conName == contract {
-				con = &Contract{
-					Runtime:     c.EVM.DeployedBytecode.Object,
-					Constructor: c.EVM.Bytecode.Object,
-					Code:        c.EVM.DeployedBytecode.Object,
-					DeployCode:  c.EVM.Bytecode.Object,
-				}
-				break
-			}
-		}
-	}
-	if con == nil {
-		return nil, fmt.Errorf("solc: unknown contract %q", contract)
-	}
-	return con, nil
+	return out.Contracts, nil
+
 }
 
 // MustCompile is like [Compiler.Compile] but panics on error.
-func (c *Compiler) MustCompile(dir, contract string, opts ...Option) *Contract {
+func (c *Compiler) MustCompile(dir, contract string, opts ...Option) map[string]map[string]Contract {
 	code, err := c.Compile(dir, contract, opts...)
 	if err != nil {
 		panic(err)
@@ -105,7 +89,7 @@ func (c *Compiler) MustCompile(dir, contract string, opts ...Option) *Contract {
 }
 
 // compile
-func (c *Compiler) compile(baseDir, contract string, opts []Option) (*output, error) {
+func (c *Compiler) compile(baseDir string, opts []Option) (*output, error) {
 	// init an return on error
 	c.once.Do(c.init)
 	if c.err != nil {

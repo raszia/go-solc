@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/lmittmann/go-solc/internal/version"
+	"github.com/raszia/go-solc/internal/version"
 )
 
 func TestIsValid(t *testing.T) {

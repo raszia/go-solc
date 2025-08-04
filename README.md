@@ -1,12 +1,12 @@
 # `go-solc`: Go Bindings for the Solidity Compiler
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/lmittmann/go-solc.svg)](https://pkg.go.dev/github.com/lmittmann/go-solc)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lmittmann/go-solc)](https://goreportcard.com/report/github.com/lmittmann/go-solc)
+[![Go Reference](https://pkg.go.dev/badge/github.com/raszia/go-solc.svg)](https://pkg.go.dev/github.com/raszia/go-solc)
+[![Go Report Card](https://goreportcard.com/badge/github.com/raszia/go-solc)](https://goreportcard.com/report/github.com/raszia/go-solc)
 
 `go-solc` provides an easy way to compile Solidity contracts from Go.
 
 ```
-go get github.com/lmittmann/go-solc
+go get github.com/raszia/go-solc
 ```
 
 

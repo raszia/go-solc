@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/lmittmann/go-solc/internal/mod"
+	"github.com/raszia/go-solc/internal/mod"
 	"golang.org/x/sync/singleflight"
 )
 
