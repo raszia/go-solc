@@ -8,7 +8,7 @@ func TestDefaultEVMVersions(t *testing.T) {
 	}
 
 	for version := range solcVersions {
-		if _, ok := defaultEVMVersions[version]; !ok {
+		if _, ok := DefaultEVMVersions[version]; !ok {
 			t.Errorf("Missing default EVM version for %q", version)
 		}
 	}

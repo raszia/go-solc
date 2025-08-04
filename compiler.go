@@ -122,7 +122,10 @@ func (c *Compiler) compile(baseDir string, opts []Option) (*output, error) {
 	}
 
 	// build settings
-	s := c.buildSettings(opts)
+	s, err := c.buildSettings(opts)
+	if err != nil {
+		return nil, err
+	}
 	in := &input{
 		Lang:     s.lang,
 		Sources:  srcMap,
@@ -229,21 +232,21 @@ func buildSrcMap(absDir string) (map[string]src, error) {
 }
 
 // buildSettings builds the default settings and applies all options.
-func (c *Compiler) buildSettings(opts []Option) *Settings {
-	defaultEVMVersion, ok := defaultEVMVersions[c.version]
+func (c *Compiler) buildSettings(opts []Option) (*Settings, error) {
+	defaultEVMVersion, ok := DefaultEVMVersions[c.version]
 	if !ok {
-		panic("unexpected solc version")
+		return nil, fmt.Errorf("unexpected solc version")
 	}
 	s := &Settings{
-		lang:       defaultLang,
-		Remappings: defaultRemappings,
-		Optimizer:  defaultOptimizer,
-		ViaIR:      defaultViaIR,
+		lang:       DefaultLang,
+		Remappings: DefaultRemappings,
+		Optimizer:  DefaultOptimizer,
+		ViaIR:      DefaultViaIR,
 		EVMVersion: defaultEVMVersion,
 	}
 	for _, opt := range opts {
 		opt(s)
 	}
-	s.OutputSelection = defaultOutputSelection
-	return s
+	s.OutputSelection = DefaultOutputSelection
+	return s, nil
 }

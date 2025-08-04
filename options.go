@@ -2,16 +2,16 @@ package solc
 
 // default settings options
 var (
-	defaultLang                     = langSolidity
-	defaultRemappings      []string = nil
-	defaultOptimizer                = &Optimizer{Enabled: true, Runs: 200}
-	defaultViaIR                    = false
-	defaultOutputSelection          = map[string]map[string][]string{
+	DefaultLang                     = langSolidity
+	DefaultRemappings      []string = nil
+	DefaultOptimizer                = &Optimizer{Enabled: true, Runs: 200}
+	DefaultViaIR                    = false
+	DefaultOutputSelection          = map[string]map[string][]string{
 		"*": {
-			"*": {"evm.bytecode.object", "evm.deployedBytecode.object"},
+			"*": {"evm.bytecode.object", "evm.deployedBytecode.object", "abi"},
 		},
 	}
-	defaultEVMVersions = map[Version]EVMVersion{
+	DefaultEVMVersions = map[Version]EVMVersion{
 		"0.5.0":  EVMVersionByzantium,
 		"0.5.1":  EVMVersionByzantium,
 		"0.5.2":  EVMVersionByzantium,
