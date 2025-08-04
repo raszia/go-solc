@@ -14,14 +14,10 @@ import (
 	"sync"
 
 	"github.com/raszia/go-solc/internal/console"
-	"github.com/raszia/go-solc/internal/mod"
 	"golang.org/x/sync/singleflight"
 )
 
 var (
-	// The path within the module root where solc binaries are stored.
-	binPath = ".solc/bin/"
-
 	perm = os.FileMode(0o0775)
 
 	// global compiler cache
@@ -36,29 +32,21 @@ type cacheItem struct {
 }
 
 type Compiler struct {
+	binPath string  // Path to the solc binary
 	version Version // Solc version
 
-	once        sync.Once
 	solcAbsPath string // solc absolute path
-	err         error  // initialization error
+
 }
 
-func New(version Version) *Compiler {
-	return &Compiler{
+func New(version Version, binPath string) (*Compiler, error) {
+	c := &Compiler{
 		version: version,
+		binPath: binPath,
 	}
-}
-
-// init initializes the compiler.
-func (c *Compiler) init() {
-	// check mod root is set
-	if mod.Root == "" {
-		c.err = fmt.Errorf("solc: no go.mod detected")
-		return
-	}
-
-	// check or download solc version
-	c.solcAbsPath, c.err = checkSolc(c.version)
+	var err error
+	c.solcAbsPath, err = checkSolc(c.version, binPath)
+	return c, err
 }
 
 // Compile all contracts in the given directory and return the contract code of
@@ -90,11 +78,6 @@ func (c *Compiler) MustCompile(dir, contract string, outputSelection map[string]
 
 // compile
 func (c *Compiler) compile(baseDir string, outputSelection map[string]map[string][]string, opts []Option) (*output, error) {
-	// init an return on error
-	c.once.Do(c.init)
-	if c.err != nil {
-		return nil, c.err
-	}
 
 	// check the directory exists
 	if stat, err := os.Stat(baseDir); err != nil || !stat.IsDir() {

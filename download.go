@@ -8,35 +8,35 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sync"
 
-	"github.com/raszia/go-solc/internal/mod"
 	"golang.org/x/sync/singleflight"
 )
 
 var (
-	maxTries = 2
+	MaxRetryDownloadAttempts = 2
 
 	dg singleflight.Group // global download group
 )
 
-// checkSolc checks for the existence of the solc binary at
-// "{MOD_ROOT}/.solc/bin/solc_{version}" and attempts to download it if it does
+// checkSolc checks for the existence of the solc binary
+// and attempts to download it if it does
 // not exist yet.
 //
 // The version string must be in the format "0.8.17".
-func checkSolc(version Version) (string, error) {
+func checkSolc(version Version, binPath string) (string, error) {
 	v, ok := solcVersions[version]
 	if !ok {
 		return "", fmt.Errorf("solc: unknown version %q", version)
 	}
 
-	if err := makeBinDir(); err != nil {
+	if err := makeBinDir(binPath); err != nil {
 		return "", err
 	}
 
-	absSolcPath := filepath.Join(mod.Root, binPath, fmt.Sprintf("solc_v%s", version))
-
+	absSolcPath := filepath.Join(binPath, fmt.Sprintf("solc_v%s", version))
+	if fileExists(absSolcPath) {
+		return absSolcPath, nil
+	}
 	_, err, _ := dg.Do(version.String(), func() (any, error) {
 		if _, err := os.Stat(absSolcPath); errors.Is(err, os.ErrNotExist) {
 			// download solc_{version}
@@ -44,10 +44,10 @@ func checkSolc(version Version) (string, error) {
 				try int
 				err error
 			)
-			for ; try < maxTries && (try == 0 || err != nil); try++ {
+			for ; try < MaxRetryDownloadAttempts && (try == 0 || err != nil); try++ {
 				err = downloadSolc(absSolcPath, v)
 			}
-			if try >= maxTries {
+			if try >= MaxRetryDownloadAttempts {
 				return "", fmt.Errorf("solc: failed to download solc %q: %w", version, err)
 			}
 		}
@@ -108,11 +108,20 @@ func downloadSolc(path string, v solcVersion) error {
 }
 
 // makeBinDir creates the directory ".solc/bin/" if it doesn't exist yet.
-func makeBinDir() error {
-	binDirMux.Lock()
-	defer binDirMux.Unlock()
-
-	return os.MkdirAll(filepath.Join(mod.Root, binPath), perm)
+func makeBinDir(binPath string) error {
+	// check if the directory exists
+	if stat, err := os.Stat(binPath); err == nil {
+		if !stat.IsDir() {
+			return fmt.Errorf("%s is not a directory", binPath)
+		}
+		return nil
+	}
+	return os.MkdirAll(binPath, perm)
 }
 
-var binDirMux sync.Mutex
+func fileExists(path string) bool {
+	if stat, err := os.Stat(path); err == nil {
+		return !stat.IsDir()
+	}
+	return false
+}

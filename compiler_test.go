@@ -6,7 +6,10 @@ import (
 )
 
 func TestCompile(t *testing.T) {
-	c := New(VersionLatest)
+	c, err := New(VersionLatest, "./.solc")
+	if err != nil {
+		t.Fatalf("failed to create compiler: %v", err)
+	}
 	outputSelection := map[string]map[string][]string{
 		"*": {
 			"*": {"evm.bytecode.object", "evm.deployedBytecode.object", "abi"},
