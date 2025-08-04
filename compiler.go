@@ -63,8 +63,8 @@ func (c *Compiler) init() {
 
 // Compile all contracts in the given directory and return the contract code of
 // the contract with the given name.
-func (c *Compiler) Compile(dir, contract string, opts ...Option) (map[string]map[string]Contract, error) {
-	out, err := c.compile(dir, opts)
+func (c *Compiler) Compile(dir, contract string, outputSelection map[string]map[string][]string, opts ...Option) (map[string]map[string]Contract, error) {
+	out, err := c.compile(dir, outputSelection, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -80,8 +80,8 @@ func (c *Compiler) Compile(dir, contract string, opts ...Option) (map[string]map
 }
 
 // MustCompile is like [Compiler.Compile] but panics on error.
-func (c *Compiler) MustCompile(dir, contract string, opts ...Option) map[string]map[string]Contract {
-	code, err := c.Compile(dir, contract, opts...)
+func (c *Compiler) MustCompile(dir, contract string, outputSelection map[string]map[string][]string, opts ...Option) map[string]map[string]Contract {
+	code, err := c.Compile(dir, contract, outputSelection, opts...)
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +89,7 @@ func (c *Compiler) MustCompile(dir, contract string, opts ...Option) map[string]
 }
 
 // compile
-func (c *Compiler) compile(baseDir string, opts []Option) (*output, error) {
+func (c *Compiler) compile(baseDir string, outputSelection map[string]map[string][]string, opts []Option) (*output, error) {
 	// init an return on error
 	c.once.Do(c.init)
 	if c.err != nil {
@@ -122,7 +122,7 @@ func (c *Compiler) compile(baseDir string, opts []Option) (*output, error) {
 	}
 
 	// build settings
-	s, err := c.buildSettings(opts)
+	s, err := c.buildSettings(outputSelection, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +232,7 @@ func buildSrcMap(absDir string) (map[string]src, error) {
 }
 
 // buildSettings builds the default settings and applies all options.
-func (c *Compiler) buildSettings(opts []Option) (*Settings, error) {
+func (c *Compiler) buildSettings(outputSelection map[string]map[string][]string, opts []Option) (*Settings, error) {
 	defaultEVMVersion, ok := DefaultEVMVersions[c.version]
 	if !ok {
 		return nil, fmt.Errorf("unexpected solc version")
@@ -247,6 +247,9 @@ func (c *Compiler) buildSettings(opts []Option) (*Settings, error) {
 	for _, opt := range opts {
 		opt(s)
 	}
-	s.OutputSelection = DefaultOutputSelection
+	s.OutputSelection = outputSelection
+	if outputSelection == nil {
+		s.OutputSelection = DefaultOutputSelection
+	}
 	return s, nil
 }
